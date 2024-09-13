@@ -12,8 +12,8 @@ using NET105_Bai1.Context;
 namespace NET105_Bai1.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20240911121927_Relationnn")]
-    partial class Relationnn
+    [Migration("20240913130613_FluentAPInn")]
+    partial class FluentAPInn
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,21 @@ namespace NET105_Bai1.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("CourseStudent", b =>
+                {
+                    b.Property<int>("CoursesCourseId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudentsStudentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CoursesCourseId", "StudentsStudentId");
+
+                    b.HasIndex("StudentsStudentId");
+
+                    b.ToTable("BangTrungGian", (string)null);
+                });
 
             modelBuilder.Entity("NET105_Bai1.Models.Category", b =>
                 {
@@ -40,6 +55,40 @@ namespace NET105_Bai1.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Category");
+                });
+
+            modelBuilder.Entity("NET105_Bai1.Models.Class", b =>
+                {
+                    b.Property<int>("ClassId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ClassId"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ClassId");
+
+                    b.ToTable("Classes");
+                });
+
+            modelBuilder.Entity("NET105_Bai1.Models.Course", b =>
+                {
+                    b.Property<int>("CourseId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CourseId"));
+
+                    b.Property<string>("CourseName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("CourseId");
+
+                    b.ToTable("Course");
                 });
 
             modelBuilder.Entity("NET105_Bai1.Models.Order", b =>
@@ -115,6 +164,66 @@ namespace NET105_Bai1.Migrations
                     b.ToTable("ProductDetails");
                 });
 
+            modelBuilder.Entity("NET105_Bai1.Models.Student", b =>
+                {
+                    b.Property<int>("StudentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StudentId"));
+
+                    b.Property<int>("Age")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ClassId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DOB")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("StudentId");
+
+                    b.HasIndex("ClassId");
+
+                    b.ToTable("SinhVien");
+                });
+
+            modelBuilder.Entity("NET105_Bai1.Models.StudentAddress", b =>
+                {
+                    b.Property<int>("AddressId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AddressId"));
+
+                    b.Property<string>("AddressDetail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AddressId");
+
+                    b.HasIndex("StudentId")
+                        .IsUnique();
+
+                    b.ToTable("StudentAddresses");
+                });
+
             modelBuilder.Entity("OrderProduct", b =>
                 {
                     b.Property<int>("OrdersId")
@@ -128,6 +237,21 @@ namespace NET105_Bai1.Migrations
                     b.HasIndex("ProductsId");
 
                     b.ToTable("OrderProduct");
+                });
+
+            modelBuilder.Entity("CourseStudent", b =>
+                {
+                    b.HasOne("NET105_Bai1.Models.Course", null)
+                        .WithMany()
+                        .HasForeignKey("CoursesCourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NET105_Bai1.Models.Student", null)
+                        .WithMany()
+                        .HasForeignKey("StudentsStudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("NET105_Bai1.Models.Product", b =>
@@ -152,6 +276,28 @@ namespace NET105_Bai1.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("NET105_Bai1.Models.Student", b =>
+                {
+                    b.HasOne("NET105_Bai1.Models.Class", "Class")
+                        .WithMany("Students")
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Class");
+                });
+
+            modelBuilder.Entity("NET105_Bai1.Models.StudentAddress", b =>
+                {
+                    b.HasOne("NET105_Bai1.Models.Student", "Student")
+                        .WithOne("StudentAddress")
+                        .HasForeignKey("NET105_Bai1.Models.StudentAddress", "StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
+                });
+
             modelBuilder.Entity("OrderProduct", b =>
                 {
                     b.HasOne("NET105_Bai1.Models.Order", null)
@@ -172,9 +318,20 @@ namespace NET105_Bai1.Migrations
                     b.Navigation("Products");
                 });
 
+            modelBuilder.Entity("NET105_Bai1.Models.Class", b =>
+                {
+                    b.Navigation("Students");
+                });
+
             modelBuilder.Entity("NET105_Bai1.Models.Product", b =>
                 {
                     b.Navigation("ProductDetail")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("NET105_Bai1.Models.Student", b =>
+                {
+                    b.Navigation("StudentAddress")
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

@@ -1,4 +1,6 @@
-﻿namespace NET105_Bai1.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace NET105_Bai1.Models
 {
     public class Product
     {
@@ -10,7 +12,10 @@
 
         public ProductDetail ProductDetail { get; set; }
 
+        //[ForeignKey("Category")]
         public int CategoryId { get; set; }
+
+        //[ForeignKey("CategoryId")]
         public Category Category { get; set; }
 
         public ICollection<Order> Orders { get; set; }
